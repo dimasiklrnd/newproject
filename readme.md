@@ -1,3 +1,3 @@
-<h1><strong>New Project GMART-GRID, import NORMALIZE:</strong> <br>Startup HTML template based on GULP & GMART-GRID</h1>
+<h1><strong>New Project SMART-GRID, import NORMALIZE:</strong> <br>Startup HTML template based on GULP & SMART-GRID</h1>
 
 
