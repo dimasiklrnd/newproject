@@ -15,6 +15,9 @@ var gulp          = require('gulp'),
 		rsync         = require('gulp-rsync'),
 		del           = require('del'),
 		smartgrid     = require('smart-grid'),
+		htmlmin       = require('gulp-htmlmin'),
+		htmlclean     = require('gulp-htmlclean'),
+		
  
 /* It's principal settings in smart grid project */
 		settings      = {
@@ -112,9 +115,27 @@ gulp.task('rsync', function() {
 	}))
 });
 
+// 2 разных варианта минификации ХТМЛ
+
+// gulp.task('minifyhtml', () => {
+//   return gulp.src('app/*.html')
+//     .pipe(htmlmin({ collapseWhitespace: true }))
+//     .pipe(gulp.dest('app/css'));
+// });
+
+gulp.task('cleanhtml', function() {
+  return gulp.src('app/manuscript_html/*.html')
+    .pipe(htmlclean({
+        protect: /<\!--%fooTemplate\b.*?%-->/g,
+        edit: function(html) { return html.replace(/\begg(s?)\b/ig, 'omelet$1'); }
+      }))
+    .pipe(gulp.dest('app/'));
+});
+
+
 //удаляем перед новой сборкой предыдущую сборку
 gulp.task('clean', function () {
-	return del(['app/css/*', 'app/js/scripts.min.js', 'app/libs/smartgrid/*'])
+	return del(['app/css/*', 'app/js/scripts.min.js', 'app/libs/smartgrid/*', 'app/index.html'])
 });
 
 if (gulpversion == 3) {
@@ -132,5 +153,5 @@ if (gulpversion == 4) {
 		gulp.watch(['libs/**/*.js', 'app/js/common.js'], gulp.parallel('scripts'));
 		gulp.watch('app/*.html', gulp.parallel('code'))
 	});
-	gulp.task('default', gulp.series('clean', gulp.parallel('watch', 'smartgrid', 'styles', 'scripts', 'browser-sync')));// здесь не было клин
+	gulp.task('default', gulp.series('clean', 'cleanhtml', gulp.parallel('watch', 'smartgrid', 'styles', 'scripts', 'browser-sync')));// здесь не было клин
 }
