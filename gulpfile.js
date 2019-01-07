@@ -135,23 +135,23 @@ gulp.task('cleanhtml', function() {
 
 //удаляем перед новой сборкой предыдущую сборку
 gulp.task('clean', function () {
-	return del(['app/css/*', 'app/js/scripts.min.js', 'app/libs/smartgrid/*', 'app/index.html'])
+	return del(['app/css/*', 'app/js/scripts.min.js', 'app/libs/smartgrid/*', 'app/*.html'])
 });
 
-if (gulpversion == 3) {
-	gulp.task('watch', ['styles', 'scripts', 'browser-sync'], function() {
-		gulp.watch('app/'+syntax+'/**/*.'+syntax+'', ['styles']);
-		gulp.watch(['libs/**/*.js', 'app/js/common.js'], ['scripts']);
-		gulp.watch('app/*.html', ['code'])
-	});
-	gulp.task('default', ['watch']);
-}
+// if (gulpversion == 3) {
+// 	gulp.task('watch', ['styles', 'scripts', 'browser-sync'], function() {
+// 		gulp.watch('app/'+syntax+'/**/*.'+syntax+'', ['styles']);
+// 		gulp.watch(['libs/**/*.js', 'app/js/common.js'], ['scripts']);
+// 		gulp.watch('app/*.html', ['code'])
+// 	});
+// 	gulp.task('default', ['watch']);
+// }
 
 if (gulpversion == 4) {
 	gulp.task('watch', function() {
 		gulp.watch('app/'+syntax+'/**/*.'+syntax+'', gulp.parallel('styles'));
 		gulp.watch(['libs/**/*.js', 'app/js/common.js'], gulp.parallel('scripts'));
-		gulp.watch('app/*.html', gulp.parallel('code'))
+		gulp.watch('app/manuscript_html/*.html', gulp.series('cleanhtml', 'code'))
 	});
 	gulp.task('default', gulp.series('clean', 'cleanhtml', gulp.parallel('watch', 'smartgrid', 'styles', 'scripts', 'browser-sync')));// здесь не было клин
 }
