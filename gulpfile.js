@@ -55,12 +55,12 @@ var gulp          = require('gulp'),
     }
 };
 
-
+// *******************************************************************************************
 gulp.task('smartgrid', function() {
 	smartgrid('app/libs/smartgrid', settings)
 });
 
-
+// *******************************************************************************************
 gulp.task('browser-sync', function() {
 	browserSync({
 		server: {
@@ -73,7 +73,14 @@ gulp.task('browser-sync', function() {
 	})
 });
 
+// *******************************************************************************************
+gulp.task('assemblyhtml', function() {
+  return gulp.src(['app/part_html/head/*.html', 'app/part_html/*.html', 'app/part_html/end/*.html'])
+    .pipe(concat('index.html'))
+    .pipe(gulp.dest('app/manuscript_html/'));
+});
 
+// *******************************************************************************************
 gulp.task('styles', function() {
 	return gulp.src('app/'+syntax+'/**/*.'+syntax+'')
 	.pipe(sass({ outputStyle: 'expanded' }).on("error", notify.onError()))
@@ -84,9 +91,10 @@ gulp.task('styles', function() {
 	.pipe(browserSync.stream())
 });
 
+// *******************************************************************************************
 gulp.task('scripts', function() {
 	return gulp.src([
-		'app/libs/jquery/dist/jquery.min.js',
+		'app/libs/jquery/dist/jquery.min.js', 'app/libs/wow/wow.min.js',
 		'app/js/common.js', // Always at the end
 		])
 	.pipe(concat('scripts.min.js'))
@@ -95,11 +103,14 @@ gulp.task('scripts', function() {
 	.pipe(browserSync.reload({ stream: true }))
 });
 
+// *******************************************************************************************
 gulp.task('code', function() {
 	return gulp.src('app/*.html')
 	.pipe(browserSync.reload({ stream: true }))
 });
 
+
+// *******************************************************************************************
 gulp.task('rsync', function() {
 	return gulp.src('app/**')
 	.pipe(rsync({
@@ -115,6 +126,8 @@ gulp.task('rsync', function() {
 	}))
 });
 
+
+// *******************************************************************************************
 // 2 разных варианта минификации ХТМЛ
 
 // gulp.task('minifyhtml', () => {
@@ -132,12 +145,13 @@ gulp.task('cleanhtml', function() {
     .pipe(gulp.dest('app/'));
 });
 
+// *******************************************************************************************
 
 //удаляем перед новой сборкой предыдущую сборку
 gulp.task('clean', function () {
-	return del(['app/css/*', 'app/js/scripts.min.js', 'app/libs/smartgrid/*', 'app/*.html'])
+	return del(['app/css/*', 'app/js/scripts.min.js', 'app/libs/smartgrid/*', 'app/*.html', 'app/manuscript_html/*.html'])
 });
-
+// *******************************************************************************************
 // if (gulpversion == 3) {
 // 	gulp.task('watch', ['styles', 'scripts', 'browser-sync'], function() {
 // 		gulp.watch('app/'+syntax+'/**/*.'+syntax+'', ['styles']);
@@ -146,12 +160,13 @@ gulp.task('clean', function () {
 // 	});
 // 	gulp.task('default', ['watch']);
 // }
-
+// *******************************************************************************************
 if (gulpversion == 4) {
 	gulp.task('watch', function() {
 		gulp.watch('app/'+syntax+'/**/*.'+syntax+'', gulp.parallel('styles'));
 		gulp.watch(['libs/**/*.js', 'app/js/common.js'], gulp.parallel('scripts'));
-		gulp.watch('app/manuscript_html/*.html', gulp.series('cleanhtml', 'code'))
+		gulp.watch('app/part_html/**/*.html', gulp.series('assemblyhtml', 'cleanhtml', 'code'))
+		// gulp.watch('app/manuscript_html/*.html', gulp.series('cleanhtml', 'code'))
 	});
-	gulp.task('default', gulp.series('clean', 'cleanhtml', gulp.parallel('watch', 'smartgrid', 'styles', 'scripts', 'browser-sync')));// здесь не было клин
+	gulp.task('default', gulp.series('clean', 'assemblyhtml', 'cleanhtml', gulp.parallel('watch', 'smartgrid', 'styles', 'scripts', 'browser-sync')));
 }
