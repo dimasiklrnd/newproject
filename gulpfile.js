@@ -17,8 +17,8 @@ var gulp          = require('gulp'),
 		smartgrid     = require('smart-grid'),
 		htmlmin       = require('gulp-htmlmin'),
 		htmlclean     = require('gulp-htmlclean'),
-		
- 
+
+
 /* It's principal settings in smart grid project */
 		settings      = {
     outputStyle: 'sass', /* less || scss || sass || styl */
@@ -43,9 +43,9 @@ var gulp          = require('gulp'),
         xs: {
             width: '560px'
         }
-        /* 
+        /*
         We can create any quantity of break points.
- 
+
         some_name: {
             width: 'Npx',
             fields: 'N(px|%|rem)',
@@ -69,7 +69,7 @@ gulp.task('browser-sync', function() {
 		notify: false,
 		open: false, //открытие браузера при запуске
 		// online: false, // Work Offline Without Internet Connection
-		// tunnel: true, tunnel: "projectname", // Demonstration page: http://projectname.localtunnel.me
+		// tunnel: true, tunnel: "medinfo", // Demonstration page: http://medinfo.localtunnel.me
 	})
 });
 
@@ -85,8 +85,8 @@ gulp.task('styles', function() {
 	return gulp.src('app/'+syntax+'/**/*.'+syntax+'')
 	.pipe(sass({ outputStyle: 'expanded' }).on("error", notify.onError()))
 	.pipe(rename({ suffix: '.min', prefix : '' }))
-	.pipe(autoprefixer(['> 0.1%']))  //было last 15 versions
-	.pipe(cleancss( { level: 2 } )/*{ 1: { specialComments: 0 }, 2: { all: true, mergeSemantically: false, removeUnusedAtRules: false, restructureRules: false } } })*/, ({ compatibility: 'ie9' })) // был левел 1
+	.pipe(autoprefixer({ /*grid:true, */browsers: ['>0.1%', 'last 2 versions'], cascade: false }))  //было last 15 versions
+	.pipe(cleancss( { level: 2 } ))/*{ 1: { specialComments: 0 }, 2: { all: true, mergeSemantically: false, removeUnusedAtRules: false, restructureRules: false } } }), ({ compatibility: 'ie9' }))*/ // был левел 1
 	.pipe(gulp.dest('app/css'))
 	.pipe(browserSync.stream())
 });
@@ -149,8 +149,9 @@ gulp.task('cleanhtml', function() {
 
 //удаляем перед новой сборкой предыдущую сборку
 gulp.task('clean', function () {
-	return del(['app/css/*', 'app/js/scripts.min.js', 'app/libs/smartgrid/*', 'app/*.html', 'app/manuscript_html/*.html'])
+	return del(['app/css/*', 'app/js/scripts.min.js', 'app/libs/smartgrid/*', 'app/index.html', 'app/manuscript_html/*.html'])
 });
+
 // *******************************************************************************************
 // if (gulpversion == 3) {
 // 	gulp.task('watch', ['styles', 'scripts', 'browser-sync'], function() {
@@ -166,9 +167,10 @@ if (gulpversion == 4) {
 		gulp.watch('app/'+syntax+'/**/*.'+syntax+'', gulp.parallel('styles'));
 		gulp.watch(['libs/**/*.js', 'app/js/common.js'], gulp.parallel('scripts'));
 		gulp.watch('app/part_html/**/*.html', gulp.series('assemblyhtml', 'cleanhtml', 'code'))
-		gulp.watch('app/libs/menu/*.css', gulp.series('styles'))
-		gulp.watch('app/libs/animate/*.scss', gulp.series('styles'))
+		gulp.watch('app/sass/partsass/*.css', gulp.series('styles'))
+		// gulp.watch('app/libs/hovereffect/*.css', gulp.series('styles'))
+		gulp.watch(('app/libs/animate/*.scss'), gulp.series('styles'))
 		// gulp.watch('app/manuscript_html/*.html', gulp.series('cleanhtml', 'code'))
 	});
-	gulp.task('default', gulp.series('clean', 'assemblyhtml', 'cleanhtml', gulp.parallel('watch', 'smartgrid', 'styles', 'scripts', 'browser-sync')));
+	gulp.task('default', gulp.series('clean', 'assemblyhtml', 'cleanhtml', gulp.parallel('watch', /*'smartgrid', */'styles', 'scripts', 'browser-sync')));
 }
